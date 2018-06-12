@@ -105,7 +105,7 @@ int main(int argc,char** argv){
     faceRecogSubscriber = nodeHandle.subscribe(subscribe_topic_face_recog,10,onGetFaceResult);
     goalReachSubscriber = nodeHandle.subscribe(subscribe_topic_goal,10,onGoalReached);
 
-    nodeHandle.param("/xbot_talker/base_path",basePath, string("/home/roc/xbot_ws/src/xbot_talker"));
+    nodeHandle.param("/xbot_talker/base_path",basePath, string("/home/lee/catkin_ws/src/xbot_talker"));
 //    ROS_ERROR("%s\n",basePath.c_str());
     ret = talker.init(basePath);
     if(ret==-1){
@@ -195,19 +195,23 @@ void* offline_voice_recog_thread(void* session_begin_params){
         //由于讯飞sdk的原因，底层录音三秒就会停止录音，按照官方文档中设置了参数也没有用(貌似是 底层bug)
         //http://bbs.xfyun.cn/forum.php?mod=viewthread&tid=35056&extra=page%3D4
        sleep(4);
-       errcode = sr_stop_listening(&iat);
-       if (errcode) {
-           cout<<"Stop listening failed. code:"<<errcode<<endl;
-       }
-       cout<<"Recording completed"<<endl;
-
        //语音播放同步锁
        //即将开启下一轮录音，判断当前是否在播放语音
        //如果在播放语音，则挂起该线程，等待语音播放完
        if(isPlayingAudio){
            unique_lock<mutex> lock2(mutex_playing_audio);
            condition_playing_audio.wait(lock2,[]{return !isPlayingAudio;});
+           errcode = sr_stop_listening(&iat);
+           if (errcode) {
+               cout<<"Stop listening failed. code:"<<errcode<<endl;
+           }
+       }else{
+           errcode = sr_stop_listening(&iat);
+           if (errcode) {
+               cout<<"Stop listening failed. code:"<<errcode<<endl;
+           }
        }
+        cout<<"Recording completed"<<endl;
 
        sr_uninit(&iat);
 
