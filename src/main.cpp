@@ -105,7 +105,7 @@ int main(int argc,char** argv){
     faceRecogSubscriber = nodeHandle.subscribe(subscribe_topic_face_recog,10,onGetFaceResult);
     goalReachSubscriber = nodeHandle.subscribe(subscribe_topic_goal,10,onGoalReached);
 
-    nodeHandle.param("/xbot_talker/base_path",basePath, string("/home/lee/catkin_ws/src/xbot_talker"));
+    nodeHandle.param("/xbot_talker/base_path",basePath, string("/home/roc/xbot_ws/src/xbot_talker"));
 //    ROS_ERROR("%s\n",basePath.c_str());
     ret = talker.init(basePath);
     if(ret==-1){
